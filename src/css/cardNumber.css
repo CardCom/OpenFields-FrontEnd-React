@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+}
+.cardNumber {
+    padding: 10px 34px;
+    width: 100%;
+    /* margin: 5px 10px; */
+    color: #444;
+    font-size: 15px;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    border: 1px solid #c5c5c5;
+    font-family: Tahoma,Helvetica,sans-serif;
+}
+
+.cardNumber.invalid{
+    border: 1px solid #c01111;
+  }
+  
