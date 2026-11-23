@@ -7,7 +7,11 @@ import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-export const DEFAULT_ENV = 'prod';
+// Optional, git-ignored: a `.cardcom-env` file at the root holding just an environment name (e.g. `test`)
+// makes it the default for `npm run dev` / `npm test`. Without it the default is prod.
+const DEFAULT_ENV_FILE = path.join(ROOT, '.cardcom-env');
+const localDefault = fs.existsSync(DEFAULT_ENV_FILE) ? fs.readFileSync(DEFAULT_ENV_FILE, 'utf8').trim() : '';
+export const DEFAULT_ENV = /^[\w-]+$/.test(localDefault) ? localDefault : 'prod';
 
 export function availableEnvironments() {
   return fs
