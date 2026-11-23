@@ -10,3 +10,6 @@ dist/
 test-results/
 playwright-report/
 *.tsbuildinfo
+# Local only: your default environment, and notes for your own environments
+.cardcom-env
+INTERNAL.md

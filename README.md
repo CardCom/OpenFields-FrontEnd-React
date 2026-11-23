@@ -31,6 +31,8 @@ Everything environment-specific lives in **one file at the root**: `.env.<name>`
 | `.env.prod` | `https://secure.cardcom.solutions` | your **test** terminal (see [Before you start](#before-you-start-get-a-test-company)) |
 
 Add a file per environment you test against (`.env.<name>`, same keys, its own host and terminal).
+To make one of them your default for `npm run dev` / `npm test`, put its name in a `.cardcom-env` file at the root
+(git-ignored), e.g. `echo test > .cardcom-env`.
 
 Optional keys: `AMOUNT` (default 1 ILS - every approved payment is a real charge), `SERVER_PORT`,
 `WEB_PORT`, `PUBLIC_BASE_URL` (webhook target; default `https://example.com` because CardCom
