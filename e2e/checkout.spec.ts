@@ -121,3 +121,20 @@ test(`a card payment is approved, confirmed by GetLpResult, and refunded (${lang
   // The refund itself happens (and is asserted) in afterEach.
 });
 }
+
+test('an error the payer can fix keeps the checkout open and shows the message', async ({ page }) => {
+  test.skip(!card.number, `no TEST_CARD_NUMBER in ${env.file}`);
+
+  await openCheckout(page, 'en');
+  const checkoutUrl = page.url();
+  await page.getByLabel('Full name', { exact: true }).fill('OpenFields Tester');
+  await page.getByLabel('Email', { exact: true }).fill('openfields-tester@example.com');
+  await page.frameLocator('iframe[name="CardComCardNumber"]').locator('input').first().fill(card.number);
+  await page.frameLocator('iframe[name="CardComCvv"]').locator('input').first().fill(card.cvv);
+  // expiry left empty -> HandleEror 400 from the master frame: fixable, so no redirect and no error screen
+
+  await page.getByTestId('pay-button').click();
+  await expect(page.getByTestId('payment-error')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId('pay-button')).toBeEnabled();
+  expect(page.url(), 'stays on the checkout').toBe(checkoutUrl);
+});

@@ -85,6 +85,7 @@ export function CardFieldsFrame({ openFields, expiration, onExpirationChange }: 
       <iframe
         ref={masterFrameRef}
         name="CardComMasterFrame"
+        id="CardComMasterFrame" // 3DS.js finds the master frame by this id
         src={`${config.openFieldsBaseUrl}/Master?language=${language.code}`}
         allow="payment"
         title="CardCom secure payment orchestrator"

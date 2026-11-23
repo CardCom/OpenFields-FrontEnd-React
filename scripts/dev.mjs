@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Starts the backend and the checkout page against one CardCom environment:
-//   npm run dev                      -> CARDCOM_ENV or billgold
-//   npm run dev -- --env=local       -> .env.local
+//   npm run dev                      -> CARDCOM_ENV or prod
+//   npm run dev -- --env=<name>      -> .env.<name>
 //   npm run dev:prod                 -> .env.prod
 import { spawn, spawnSync } from 'node:child_process';
 import { ROOT, DEFAULT_ENV, loadEnvironment, processEnv } from './env.mjs';
@@ -18,8 +18,8 @@ try {
 }
 const vars = processEnv(env);
 
-// Internal environments (billgold, local IIS) use certificates of the company CA, which Node only
-// trusts from the OS store with --use-system-ca (Node >= 22.15).
+// A CardCom host signed by a company / internal CA is trusted only from the OS certificate store,
+// which Node reads with --use-system-ca (Node >= 22.15).
 const nodeOptions = `${process.env.NODE_OPTIONS ?? ''} --use-system-ca`.trim();
 
 console.log(

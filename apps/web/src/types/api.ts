@@ -9,7 +9,7 @@ export interface CreateLowProfileResponse {
 
 export interface OrderStatusResponse {
   orderId: string;
-  status: 'pending' | 'paid' | 'failed';
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'expired';
   amount: number;
   currency: string;
   productName: string;

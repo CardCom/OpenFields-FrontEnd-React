@@ -2,7 +2,6 @@
 // Field/action names match CardCom's actual wire format exactly, including the
 // literal "HandleEror" spelling — that is the real value CardCom sends; do not "fix" it.
 
-import type { LanguageCode } from '../i18n/languages';
 
 export interface GooglePayButtonConfig {
   buttonColor?: 'default' | 'black' | 'white';
@@ -37,10 +36,9 @@ export interface ApplePayButtonConfig {
 }
 
 export interface InitPayload {
-  apiName: string;
-  terminalNumber: string;
   lowProfileCode: string;
-  language: LanguageCode;
+  /** Language of the messages the master frame makes itself - only 'he' and 'en' exist. */
+  language: 'he' | 'en';
   screenWidth: string;
   screenHeight: string;
   screenColorDepth: string;
@@ -93,7 +91,14 @@ export interface HandleSubmitData {
 
 export type OpenFieldsInboundMessage =
   | { action: 'ready' }
-  | { action: 'initialized'; isApplePayAvailable: boolean; isGooglePayAvailable: boolean }
+  | {
+      action: 'initialized';
+      isApplePayAvailable: boolean;
+      isGooglePayAvailable: boolean;
+      /** Why a wallet is unavailable - for the developer, never shown to the payer. */
+      applePayUnavailable?: WalletUnavailable;
+      googlePayUnavailable?: WalletUnavailable;
+    }
   | { action: 'handleValidations'; field: 'cardNumber' | 'cvv' | 'reCaptcha'; isValid: boolean }
   | { action: 'HandleSubmit'; data: HandleSubmitData }
   | {
@@ -109,4 +114,11 @@ export type OpenFieldsInboundMessage =
 
 export function isOpenFieldsMessage(data: unknown): data is OpenFieldsInboundMessage {
   return typeof data === 'object' && data !== null && typeof (data as { action?: unknown }).action === 'string';
+}
+
+export interface WalletUnavailable {
+  reason: 'notEnabled' | 'domainNotRegistered' | 'deviceNotSupported' | 'sdkLoadFailed' | 'serverError' | 'unknown';
+  message: string;
+  /** Apple Pay: the page domain that is not registered */
+  domain?: string;
 }

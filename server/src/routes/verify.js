@@ -1,5 +1,6 @@
-import { getOrder, markPaid, markFailed } from '../ordersStore.js';
+import { getOrder } from '../ordersStore.js';
 import { getLpResult } from '../cardcomClient.js';
+import { applyLpResult } from '../applyLpResult.js';
 
 export default async function verifyRoute(fastify) {
   fastify.get('/api/checkout/verify/:orderId', async (request, reply) => {
@@ -11,14 +12,10 @@ export default async function verifyRoute(fastify) {
 
     // GetLpResult is the source of truth — used here as a fallback for flows that
     // leave the page entirely (Bit) and land back on the result page via redirect.
-    if (order.status === 'pending' && order.lowProfileId) {
+    // Not only `pending`: a `failed` order can still become `paid` (only `paid` is final).
+    if (order.status !== 'paid' && order.lowProfileId) {
       try {
-        const result = await getLpResult(order.lowProfileId);
-        if (result.ResponseCode === 0 && result.TranzactionInfo?.TranzactionId) {
-          markPaid(order.id, result.TranzactionInfo.TranzactionId);
-        } else if (result.ResponseCode !== 0) {
-          markFailed(order.id, result.Description);
-        }
+        applyLpResult(order, await getLpResult(order.lowProfileId));
       } catch (error) {
         fastify.log.error({ err: error }, 'GetLpResult failed during verify');
       }

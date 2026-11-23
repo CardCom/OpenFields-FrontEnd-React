@@ -1,5 +1,5 @@
 // One environment file per CardCom environment, at the repo root: .env.<name>
-// (.env.local, .env.billgold, .env.prod ... - copy .env.example). This module is the only place that
+// (.env.prod, .env.<name> ... - copy .env.example). This module is the only place that
 // reads it; the server and the dev launcher both go through loadEnvironment().
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-export const DEFAULT_ENV = 'billgold';
+export const DEFAULT_ENV = 'prod';
 
 export function availableEnvironments() {
   return fs
@@ -83,7 +83,7 @@ export function processEnv(env) {
       // calling http://localhost is mixed content, which WebKit (every iPhone browser) blocks.
       VITE_API_BASE_URL: '',
       API_PROXY_TARGET: env.serverUrl,
-      VITE_API_NAME: env.apiName,
+      // No API name / password in the browser: ApiName alone can call LowProfile/Create and GetLpResult.
       VITE_TERMINAL_NUMBER: String(env.terminalNumber),
     },
   };

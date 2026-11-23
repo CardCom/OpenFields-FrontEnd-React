@@ -1,6 +1,6 @@
 // End-to-end check of OpenFields through a real merchant integration (this app's checkout + backend).
-//   npm test                     -> CARDCOM_ENV or billgold
-//   npm test -- --env=local      (handled by scripts/test.mjs)
+//   npm test                     -> CARDCOM_ENV or prod
+//   npm test -- --env=<name>     -> .env.<name> (handled by scripts/test.mjs)
 // The dev servers are started for the run (or reused when already running on the same ports).
 import { defineConfig, devices } from '@playwright/test';
 import { loadEnvironment } from './scripts/env.mjs';
