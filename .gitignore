@@ -1,0 +1,12 @@
+node_modules/
+dist/
+# Environment files hold API credentials - only .env.example is committed
+.env
+.env.*
+!.env.example
+*.local
+.DS_Store
+*.log
+test-results/
+playwright-report/
+*.tsbuildinfo
