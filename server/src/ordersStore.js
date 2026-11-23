@@ -45,6 +45,16 @@ export function markPaid(id, transactionId) {
   return order;
 }
 
+/** The payment page can no longer be paid: 'cancelled' (GetLpResult 5117) or 'expired' (5118). */
+export function markClosed(id, status, reason) {
+  const order = orders.get(id);
+  if (!order || order.status === 'paid') return order; // never downgrade a paid order
+  order.status = status;
+  order.failureReason = reason;
+  order.updatedAt = new Date().toISOString();
+  return order;
+}
+
 export function markFailed(id, reason) {
   const order = orders.get(id);
   if (!order || order.status === 'paid') return order; // never downgrade a paid order

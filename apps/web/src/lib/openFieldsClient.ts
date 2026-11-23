@@ -54,6 +54,9 @@ export class OpenFieldsClient {
         this.emit('ready', undefined);
         break;
       case 'initialized':
+        // Why a wallet is hidden - for the developer only, never shown to the payer.
+        if (message.applePayUnavailable) console.warn('Apple Pay unavailable:', message.applePayUnavailable);
+        if (message.googlePayUnavailable) console.warn('Google Pay unavailable:', message.googlePayUnavailable);
         this.emit('initialized', {
           isApplePayAvailable: message.isApplePayAvailable,
           isGooglePayAvailable: message.isGooglePayAvailable,

@@ -32,6 +32,8 @@ export function useOpenFields(lowProfileCode: string | null) {
   const [cvvValid, setCvvValid] = useState<boolean | null>(null);
   const [result, setResult] = useState<HandleSubmitData | null>(null);
   const [error, setError] = useState<SubmitError | null>(null);
+  /** An error the payer can fix and retry on the same LowProfile - shown on the form. */
+  const [formError, setFormError] = useState<SubmitError | null>(null);
 
   useEffect(() => {
     if (!lowProfileCode) return;
@@ -42,10 +44,9 @@ export function useOpenFields(lowProfileCode: string | null) {
     const unsubscribers = [
       client.on('ready', () => {
         client.init({
-          apiName: config.apiName,
-          terminalNumber: config.terminalNumber,
           lowProfileCode,
-          language: language.code,
+          // the master frame has only Hebrew and English messages
+          language: language.code === 'he' ? 'he' : 'en',
           screenWidth: String(window.screen.width),
           screenHeight: String(window.screen.height),
           screenColorDepth: String(window.screen.colorDepth),
@@ -83,14 +84,24 @@ export function useOpenFields(lowProfileCode: string | null) {
         setStatus('success');
       }),
       client.on('submitError', (err) => {
+        const submitError = {
+          message: Array.isArray(err.message) ? err.message.join(', ') : err.message,
+          responseCode: err.responseCode,
+        };
+        // 99999 = declined and the LowProfile is closed; a developer error is a bug in the page.
+        // Everything else (a decline - ResponseCode 0 -, missing input, 3DS failure...) can be retried
+        // on the same LowProfile: show the message on the form instead of leaving the checkout.
+        const isClosed = err.responseCode === 99999 || err.isDeveloperError === true;
+        if (!isClosed) {
+          setFormError(submitError);
+          setStatus('ready');
+          return;
+        }
         if (err.redirectUrl) {
           window.location.assign(err.redirectUrl);
           return;
         }
-        setError({
-          message: Array.isArray(err.message) ? err.message.join(', ') : err.message,
-          responseCode: err.responseCode,
-        });
+        setError(submitError);
         setStatus('error');
       }),
     ];
@@ -103,6 +114,7 @@ export function useOpenFields(lowProfileCode: string | null) {
   }, [lowProfileCode]);
 
   function submit(fields: DoTransactionPayload) {
+    setFormError(null);
     setStatus('submitting');
     clientRef.current?.doTransaction(fields);
   }
@@ -120,6 +132,7 @@ export function useOpenFields(lowProfileCode: string | null) {
     cvvValid,
     result,
     error,
+    formError,
     masterFrameRef,
     cardNumberFrameRef,
     cvvFrameRef,

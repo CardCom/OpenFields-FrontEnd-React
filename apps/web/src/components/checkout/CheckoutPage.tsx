@@ -70,6 +70,11 @@ export function CheckoutPage() {
           <h2 className="mb-4 text-lg font-semibold text-slate-900">{t('payWithCard')}</h2>
           <BillingDetailsForm value={billing} onChange={setBilling} />
           <CardFieldsFrame openFields={openFields} expiration={expiration} onExpirationChange={setExpiration} />
+          {openFields.formError && (
+            <p role="alert" data-testid="payment-error" className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+              {openFields.formError.message || t('paymentNotCompleted')}
+            </p>
+          )}
           <button
             type="button"
             data-testid="pay-button"

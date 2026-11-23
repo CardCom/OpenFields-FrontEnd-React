@@ -2,11 +2,23 @@
 
 A merchant checkout that uses CardCom **OpenFields** end to end - React + Vite page hosting the
 CardCom iframes (card number, CVV, Apple Pay, Google Pay, Bit) and a Fastify backend that creates
-the LowProfile, verifies with GetLpResult and handles the webhook. Use it to check an OpenFields
-change against any CardCom environment, by hand or with the Playwright e2e specs.
+the LowProfile, verifies with GetLpResult and handles the webhook. Use it to try OpenFields, by hand
+or with the Playwright e2e specs, and as a reference for your own integration.
+
+## Before you start: get a test company
+
+**Contact CardCom support and request a test company with a test terminal.** Use it to try this
+project and to build and test your own integration, before you connect a real terminal. You get a test
+terminal number and an API user (`API_NAME` / `API_PASSWORD`) - put them in your `.env.<name>`.
+
+Never experiment on a live terminal: every approved payment is a real charge.
 
 > Demo backend: in-memory orders, no auth. Not a production integration - see the integration
-> guides (`cardcom-openfields-ecommerce-integration.md`).
+> guide: [docs/cardcom-openfields-ecommerce-integration.md](docs/cardcom-openfields-ecommerce-integration.md).
+
+**Integrating with an AI coding agent?** Point it at this repository. [AGENTS.md](AGENTS.md) (also loaded
+by Claude Code through [CLAUDE.md](CLAUDE.md)) tells the agent to follow the integration guide, lists
+the rules it must not break, and maps every part of the guide to the code here.
 
 ## One file per environment
 
@@ -16,30 +28,29 @@ Everything environment-specific lives in **one file at the root**: `.env.<name>`
 
 | File | CardCom host | Terminal |
 |---|---|---|
-| `.env.local` | `http://localhost:61240` (IIS Express) | 1000 |
-| `.env.billgold` | `https://billgold.slika.local` | 9021 (company 1694) |
-| `.env.prod` | `https://secure.cardcom.solutions` | 1000 (test terminal) |
+| `.env.prod` | `https://secure.cardcom.solutions` | your **test** terminal (see [Before you start](#before-you-start-get-a-test-company)) |
+
+Add a file per environment you test against (`.env.<name>`, same keys, its own host and terminal).
 
 Optional keys: `AMOUNT` (default 1 ILS - every approved payment is a real charge), `SERVER_PORT`,
 `WEB_PORT`, `PUBLIC_BASE_URL` (webhook target; default `https://example.com` because CardCom
-rejects localhost webhooks with 5170), `TEST_CARD_*` (card for the e2e specs).
+rejects internal webhook addresses with 5170), `TEST_CARD_*` (card for the e2e specs).
 
 ## Run it
 
-Node >= 22.15 (uses `--use-system-ca` to trust the company CA of billgold / local IIS).
+Node >= 22.15 (uses `--use-system-ca`, so hosts signed by a company CA are trusted too).
 
 ```bash
 npm install
-npm run dev                  # CARDCOM_ENV or billgold
-npm run dev -- --env=local   # or dev:local / dev:billgold / dev:prod
+npm run dev                  # .env.prod (or CARDCOM_ENV); same as dev:prod
+npm run dev -- --env=<name>  # any other .env.<name>
 ```
 
 Open `https://localhost:5173` (self-signed certificate - accept it once). The header badge shows the
 environment, host and terminal the page charges.
 
-The page calls its own origin (`/api/...`); Vite proxies to the backend. Calling
-`http://localhost:8000` from the https page directly would be mixed content, which every iPhone
-browser blocks.
+The page calls its own origin (`/api/...`); Vite proxies to the backend. Calling the backend's
+http address from the https page directly would be mixed content, which every iPhone browser blocks.
 
 ## Languages
 
@@ -57,8 +68,8 @@ Texts of this page: `apps/web/src/i18n/messages.ts`; languages: `apps/web/src/i1
 ## End-to-end specs
 
 ```bash
-npm test                     # billgold, Desktop Chrome + iPhone (WebKit) + Android (Pixel 7)
-npm test -- --env=local
+npm test                     # .env.prod: Desktop Chrome + iPhone (WebKit) + Android (Pixel 7)
+npm test -- --env=<name>     # any other .env.<name>
 npm test -- --project="iPhone (WebKit)"
 npm run report
 ```
@@ -83,4 +94,6 @@ scripts/test.mjs   runs the e2e specs for one environment
 apps/web/          React + Vite + Tailwind checkout
 server/            Fastify backend (LowProfile/Create, verify, webhook)
 e2e/               Playwright specs
+docs/              integration guide (+ LowProfile, webhook, void companions) for developers and AI agents
+AGENTS.md          instructions for AI coding agents (CLAUDE.md imports it)
 ```

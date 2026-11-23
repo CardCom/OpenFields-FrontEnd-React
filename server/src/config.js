@@ -1,7 +1,7 @@
 import { loadEnvironment } from '../../scripts/env.mjs';
 
 // Settings come from ONE file at the repo root, .env.<environment> (see .env.example), chosen by
-// CARDCOM_ENV (default billgold). `npm run dev` (scripts/dev.mjs) resolves it and passes the values
+// CARDCOM_ENV (default prod). `npm run dev` (scripts/dev.mjs) resolves it and passes the values
 // in; started on its own (`npm run dev -w server`) the server reads the file itself.
 const fromFile = process.env.CARDCOM_HOST ? null : loadEnvironment();
 
@@ -11,7 +11,7 @@ const host = env('CARDCOM_HOST', fromFile?.host).replace(/\/+$/, '');
 const port = Number(env('PORT', fromFile?.serverPort)) || 8000;
 
 export const config = {
-  environment: env('CARDCOM_ENV', fromFile?.name) || 'billgold',
+  environment: env('CARDCOM_ENV', fromFile?.name) || 'prod',
   cardcomHost: host,
   cardcomBaseUrl: `${host}/api/v11`,
   terminalNumber: Number(env('TERMINAL_NUMBER', fromFile?.terminalNumber)),

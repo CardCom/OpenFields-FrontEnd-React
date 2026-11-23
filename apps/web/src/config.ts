@@ -11,6 +11,5 @@ export const config = {
   openFieldsBaseUrl: `${cardcomHost}/api/OpenFields`,
   // Every inbound postMessage is checked against this origin before it's trusted.
   cardcomOrigin: new URL(cardcomHost).origin,
-  apiName: import.meta.env.VITE_API_NAME || '',
   terminalNumber: import.meta.env.VITE_TERMINAL_NUMBER || '',
 };
